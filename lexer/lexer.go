@@ -49,14 +49,32 @@ func (l *Lexer) NextToken() token.Token {
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
+	default:
+		if isLetter(l.ch) {
+			tok.Literal = l.readIdentifier() //我们可能需要往后寻找 直到一个完整的indetifier
+			return tok
+		} else {
+			tok = newToken(token.ILLEGAL, l.ch)
+		}
 	}
-
 	l.readChar()
 	return tok
 }
 
 func newToken(tokenType token.TokenType, ch byte) token.Token {
-	//according to args return a pointer which points to a Token
+	//according to args, return a pointer which points to a Token
 	//transmit byte --> string
 	return token.Token{Type: tokenType, Literal: string(ch)}
+}
+
+func (l *Lexer) readIdentifier() string {
+	position := l.position //保存当前的position:identifier开始的位置
+	for isLetter(l.ch) {
+		l.readChar()
+	}
+	return l.input[position:l.position]
+}
+
+func isLetter(b byte) bool {
+	return ('a' <= b && b < 'z') || ('A' <= b && b <= 'Z') || b == '_' //允许下划线
 }
