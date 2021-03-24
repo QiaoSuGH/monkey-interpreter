@@ -25,9 +25,15 @@ func (l *Lexer) readChar() {
 	l.readPosition += 1
 }
 
+func (l *Lexer) skipWhitespace() {
+	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+		l.readChar()
+	}
+}
+
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
-
+	l.skipWhitespace()
 	//注意这里都是单引号
 	switch l.ch {
 	case '=':
@@ -52,6 +58,11 @@ func (l *Lexer) NextToken() token.Token {
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier() //我们可能需要往后寻找 直到一个完整的indetifier
+			tok.Type = token.LookUpIdent(tok.Literal)
+			return tok
+		} else if isDigit(l.ch) {
+			tok.Literal = l.readNumber()
+			tok.Type = token.INT
 			return tok
 		} else {
 			tok = newToken(token.ILLEGAL, l.ch)
@@ -75,6 +86,18 @@ func (l *Lexer) readIdentifier() string {
 	return l.input[position:l.position]
 }
 
+func (l *Lexer) readNumber() string {
+	position := l.position
+	for isDigit(l.ch) {
+		l.readChar()
+	}
+	return l.input[position:l.position]
+}
+
 func isLetter(b byte) bool {
-	return ('a' <= b && b < 'z') || ('A' <= b && b <= 'Z') || b == '_' //允许下划线
+	return ('a' <= b && b <= 'z') || ('A' <= b && b <= 'Z') || b == '_' //允许下划线
+}
+
+func isDigit(ch byte) bool {
+	return '0' <= ch && ch <= '9'
 }
