@@ -20,4 +20,4 @@ Expressed as a list of features, Monkey has the following:
 #### Additional to-do's
 
 - [ ] Extended input types to support more detailed error messages
-- [ ] Add support for floating point numbers and numbers in hex/octal notation
+- [ ] Add supports for floating point numbers and numbers in hex/octal notation
